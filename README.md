@@ -43,3 +43,6 @@ Please cite Caffe in your publications if it helps your research:
       Title = {Caffe: Convolutional Architecture for Fast Feature Embedding},
       Year = {2014}
     }
+
+This project is developed to do some profiling on the Caffe.
+REMEBER: Set the time interval as the global input!
