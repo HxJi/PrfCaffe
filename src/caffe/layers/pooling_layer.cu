@@ -158,13 +158,14 @@ __global__ void StoPoolForwardTest(const int nthreads,
 template <typename Dtype>
 void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
+
   //[houxiang] sparsity output file name
   std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
   std::ofstream sparsity_output;
   sparsity_output.open(filename.c_str());
   int zero_cell = 0; //count the number of zero elements in the output
   int all_cell = top[0]->count();
-  sparsity_output << all_cell << std::endl;
+  sparsity_output << “all_cell" << all_cell << std::endl;
 
   const Dtype* bottom_data = bottom[0]->gpu_data();
   Dtype* top_data = top[0]->mutable_gpu_data();
@@ -218,6 +219,14 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   default:
     LOG(FATAL) << "Unknown pooling method.";
   }
+  //[houxiang]
+  for(int i=0; i<count; ++i){
+    if(top_data[i] == 0){
+      ++zero_cell;
+    }
+  }
+  sparsity_output << “zero_cell" << zero_cell << std::endl;
+
   CUDA_POST_KERNEL_CHECK;
 }
 
