@@ -39,6 +39,13 @@ __global__ void MaxPoolForward(const int nthreads,
       }
     }
     top_data[index] = maxval;
+
+  //[houxiang] sparsity output file name
+  std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
+  std::ofstream sparsity_output;
+  sparsity_output.open(filename.c_str());
+  sparsity_output<<"top_data "<<top_data[index]<<std::endl;
+  
     if (mask) {
       mask[index] = maxidx;
     } else {
@@ -220,12 +227,12 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     LOG(FATAL) << "Unknown pooling method.";
   }
   //[houxiang]
-  for(int i=0; i<count; ++i){
-    if(top_data[i] == 0){
-      ++zero_cell;
-    }
-  }
-  sparsity_output <<"zero_cell"<< zero_cell << std::endl;
+  //for(int i=0; i<count; ++i){
+  // if(top_data[i] == 0){
+  //    ++zero_cell;
+  //  }
+  // }
+  //sparsity_output <<"zero_cell"<< zero_cell << std::endl;
 
   CUDA_POST_KERNEL_CHECK;
 }
