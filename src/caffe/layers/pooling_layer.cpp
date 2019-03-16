@@ -12,10 +12,6 @@ namespace caffe {
 using std::min;
 using std::max;
 
-//[houxiang] sparsity output file name
-std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
-std::ofstream sparsity_output.open(filename.c_str());
-
 template <typename Dtype>
 void PoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
@@ -154,6 +150,7 @@ void PoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   const int top_count = top[0]->count();
   //[houxiang]
   sparsity_output << top_count << std::endl;
+  int zero_cell = 0; //count the number of zero elements in the output
 
   // We'll output the mask to top[1] if it's of size >1.
   const bool use_top_mask = top.size() > 1;

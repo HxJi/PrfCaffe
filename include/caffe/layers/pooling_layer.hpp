@@ -2,6 +2,8 @@
 #define CAFFE_POOLING_LAYER_HPP_
 
 #include <vector>
+//[houxiang]
+#include <string>
 
 #include "caffe/blob.hpp"
 #include "caffe/layer.hpp"
@@ -33,6 +35,11 @@ class PoolingLayer : public Layer<Dtype> {
     return (this->layer_param_.pooling_param().pool() ==
             PoolingParameter_PoolMethod_MAX) ? 2 : 1;
   }
+    //[houxiang] sparsity output file name
+    std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
+    std::ofstream sparsity_output;
+    sparsity_output.open(filename.c_str());
+
 
  protected:
   virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
