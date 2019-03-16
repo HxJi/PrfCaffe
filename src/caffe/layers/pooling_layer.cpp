@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <cfloat>
 #include <vector>
+//[houxiang]
+#include <string>
 
 #include "caffe/layers/pooling_layer.hpp"
 #include "caffe/util/math_functions.hpp"
@@ -9,6 +11,11 @@ namespace caffe {
 
 using std::min;
 using std::max;
+
+//[houxiang] sparsity output file name
+std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
+std::ofstream sparsity_output;
+sparsity_output.open(filename.c_str());
 
 template <typename Dtype>
 void PoolingLayer<Dtype>::LayerSetUp(const vector<Blob<Dtype>*>& bottom,
@@ -146,6 +153,9 @@ void PoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   const Dtype* bottom_data = bottom[0]->cpu_data();
   Dtype* top_data = top[0]->mutable_cpu_data();
   const int top_count = top[0]->count();
+  //[houxiang]
+  sparsity_output << top_count << std::endl;
+  
   // We'll output the mask to top[1] if it's of size >1.
   const bool use_top_mask = top.size() > 1;
   int* mask = NULL;  // suppress warnings about uninitialized variables
