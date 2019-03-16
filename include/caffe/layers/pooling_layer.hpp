@@ -35,10 +35,7 @@ class PoolingLayer : public Layer<Dtype> {
     return (this->layer_param_.pooling_param().pool() ==
             PoolingParameter_PoolMethod_MAX) ? 2 : 1;
   }
-    //[houxiang] sparsity output file name
-    std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
-    std::ofstream sparsity_output;
-    sparsity_output.open(filename.c_str());
+
 
 
  protected:

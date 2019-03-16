@@ -145,12 +145,20 @@ void PoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
 template <typename Dtype>
 void PoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
+
+  //[houxiang] sparsity output file name
+  std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
+  std::ofstream sparsity_output;
+  sparsity_output.open(filename.c_str());
+
   const Dtype* bottom_data = bottom[0]->cpu_data();
   Dtype* top_data = top[0]->mutable_cpu_data();
   const int top_count = top[0]->count();
+  
   //[houxiang]
   sparsity_output << top_count << std::endl;
   int zero_cell = 0; //count the number of zero elements in the output
+  int all_cell = top[0]->count();
 
   // We'll output the mask to top[1] if it's of size >1.
   const bool use_top_mask = top.size() > 1;
