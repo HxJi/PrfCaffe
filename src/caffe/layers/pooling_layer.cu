@@ -162,10 +162,10 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
   std::ofstream sparsity_output;
   sparsity_output.open(filename.c_str());
-  sparsity_output << top_count << std::endl;
   int zero_cell = 0; //count the number of zero elements in the output
   int all_cell = top[0]->count();
-  
+  sparsity_output << all_cell << std::endl;
+
   const Dtype* bottom_data = bottom[0]->gpu_data();
   Dtype* top_data = top[0]->mutable_gpu_data();
   int count = top[0]->count();
