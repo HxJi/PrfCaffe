@@ -14,6 +14,7 @@ __global__ void MaxPoolForward(const int nthreads,
     const int pooled_width, const int kernel_h, const int kernel_w,
     const int stride_h, const int stride_w, const int pad_h, const int pad_w,
     Dtype* const top_data, int* mask, Dtype* top_mask) {
+
   CUDA_KERNEL_LOOP(index, nthreads) {
     const int pw = index % pooled_width;
     const int ph = (index / pooled_width) % pooled_height;
@@ -157,6 +158,14 @@ __global__ void StoPoolForwardTest(const int nthreads,
 template <typename Dtype>
 void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
+  //[houxiang] sparsity output file name
+  std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
+  std::ofstream sparsity_output;
+  sparsity_output.open(filename.c_str());
+  sparsity_output << top_count << std::endl;
+  int zero_cell = 0; //count the number of zero elements in the output
+  int all_cell = top[0]->count();
+  
   const Dtype* bottom_data = bottom[0]->gpu_data();
   Dtype* top_data = top[0]->mutable_gpu_data();
   int count = top[0]->count();
