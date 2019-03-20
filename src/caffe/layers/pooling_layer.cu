@@ -186,7 +186,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   sparsity_output <<"all_cell" << all_cell << std::endl;
   int block_num = CAFFE_GET_BLOCKS(count);
   int* dev_zero_cell = 0;
-  cudaMalloc((void**)&dev_zero_cell, block_num * sizeof(int))
+  cudaMalloc((void**)&dev_zero_cell, block_num * sizeof(int));
   cudaMemcpy(dev_zero_cell, zero_cell, block_num * sizeof(int), cudaMemcpyHostToDevice);
 
   switch (this->layer_param_.pooling_param().pool()) {
