@@ -5,6 +5,9 @@
 #include "caffe/layers/pooling_layer.hpp"
 #include "caffe/util/math_functions.hpp"
 
+//add the attribute recording zero element number in every function interface to pass it out
+//the last parameter for global functions
+
 namespace caffe {
 
 template <typename Dtype>
@@ -13,7 +16,7 @@ __global__ void MaxPoolForward(const int nthreads,
     const int height, const int width, const int pooled_height,
     const int pooled_width, const int kernel_h, const int kernel_w,
     const int stride_h, const int stride_w, const int pad_h, const int pad_w,
-    Dtype* const top_data, int* mask, Dtype* top_mask) {
+    Dtype* const top_data, int* mask, Dtype* top_mask,int* zero_element) {
 
   CUDA_KERNEL_LOOP(index, nthreads) {
     const int pw = index % pooled_width;
@@ -39,13 +42,9 @@ __global__ void MaxPoolForward(const int nthreads,
       }
     }
     top_data[index] = maxval;
-
-  //[houxiang] sparsity output file name
-  std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
-  std::ofstream sparsity_output;
-  sparsity_output.open(filename.c_str());
-  sparsity_output<<"top_data "<<top_data[index]<<std::endl;
-  
+    //[houxiang]
+    if(top_data[index] == 0) ++zero_element[blockIdx.x];
+    
     if (mask) {
       mask[index] = maxidx;
     } else {
@@ -60,7 +59,7 @@ __global__ void AvePoolForward(const int nthreads,
     const int height, const int width, const int pooled_height,
     const int pooled_width, const int kernel_h, const int kernel_w,
     const int stride_h, const int stride_w, const int pad_h, const int pad_w,
-    Dtype* const top_data) {
+    Dtype* const top_data, int* zero_element) {
   CUDA_KERNEL_LOOP(index, nthreads) {
     const int pw = index % pooled_width;
     const int ph = (index / pooled_width) % pooled_height;
@@ -84,6 +83,8 @@ __global__ void AvePoolForward(const int nthreads,
       }
     }
     top_data[index] = aveval / pool_size;
+    //[houxiang]
+    if(top_data[index] == 0) ++zero_element[blockIdx.x];
   }
 }
 
@@ -93,7 +94,7 @@ __global__ void StoPoolForwardTrain(const int nthreads,
     const int num, const int channels, const int height,
     const int width, const int pooled_height, const int pooled_width,
     const int kernel_h, const int kernel_w, const int stride_h,
-    const int stride_w, Dtype* const rand_idx, Dtype* const top_data) {
+    const int stride_w, Dtype* const rand_idx, Dtype* const top_data, int* zero_element) {
   CUDA_KERNEL_LOOP(index, nthreads) {
     const int pw = index % pooled_width;
     const int ph = (index / pooled_width) % pooled_height;
@@ -121,6 +122,7 @@ __global__ void StoPoolForwardTrain(const int nthreads,
         if (cumsum >= thres) {
           rand_idx[index] = ((n * channels + c) * height + h) * width + w;
           top_data[index] = bottom_slice[h * width + w];
+          if(top_data[index] == 0) ++zero_element[blockIdx.x]; 
           return;
         }
       }
@@ -166,14 +168,6 @@ template <typename Dtype>
 void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
 
-  //[houxiang] sparsity output file name
-  std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
-  std::ofstream sparsity_output;
-  sparsity_output.open(filename.c_str());
-  int zero_cell = 0; //count the number of zero elements in the output
-  int all_cell = top[0]->count();
-  sparsity_output <<"all_cell" << all_cell << std::endl;
-
   const Dtype* bottom_data = bottom[0]->gpu_data();
   Dtype* top_data = top[0]->mutable_gpu_data();
   int count = top[0]->count();
@@ -181,6 +175,20 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   const bool use_top_mask = top.size() > 1;
   int* mask = NULL;
   Dtype* top_mask = NULL;
+
+  //[houxiang] sparsity output file name
+  std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
+  std::ofstream sparsity_output;
+  sparsity_output.open(filename.c_str());
+  //count the zero number in each block to save space
+  int* zero_cell = 0;
+  int all_cell = top[0]->count();
+  sparsity_output <<"all_cell" << all_cell << std::endl;
+  int block_num = CAFFE_GET_BLOCKS(count);
+  int* dev_zero_cell = 0;
+  cudaMalloc((void**)&dev_zero_cell, block_num * sizeof(int))
+  cudaMemcpy(dev_zero_cell, zero_cell, block_num * sizeof(int), cudaMemcpyHostToDevice);
+
   switch (this->layer_param_.pooling_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
     if (use_top_mask) {
@@ -193,14 +201,14 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
         count, bottom_data, bottom[0]->num(), channels_,
         height_, width_, pooled_height_, pooled_width_, kernel_h_,
         kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data,
-        mask, top_mask);
+        mask, top_mask, dev_zero_cell);
     break;
   case PoolingParameter_PoolMethod_AVE:
     // NOLINT_NEXT_LINE(whitespace/operators)
     AvePoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom_data, bottom[0]->num(), channels_,
         height_, width_, pooled_height_, pooled_width_, kernel_h_,
-        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data);
+        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data, dev_zero_cell);
     break;
   case PoolingParameter_PoolMethod_STOCHASTIC:
     if (this->phase_ == TRAIN) {
@@ -213,7 +221,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
           count, bottom_data, bottom[0]->num(), channels_,
           height_, width_, pooled_height_, pooled_width_, kernel_h_,
           kernel_w_, stride_h_, stride_w_,
-          rand_idx_.mutable_gpu_data(), top_data);
+          rand_idx_.mutable_gpu_data(), top_data,dev_zero_cell);
     } else {
       // NOLINT_NEXT_LINE(whitespace/operators)
       StoPoolForwardTest<Dtype><<<CAFFE_GET_BLOCKS(count),
@@ -226,13 +234,11 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   default:
     LOG(FATAL) << "Unknown pooling method.";
   }
+
   //[houxiang]
-  //for(int i=0; i<count; ++i){
-  // if(top_data[i] == 0){
-  //    ++zero_cell;
-  //  }
-  // }
-  //sparsity_output <<"zero_cell"<< zero_cell << std::endl;
+  cudaMemcpy(zero_cell, dev_zero_cell, block_num * sizeof(int), cudaMemcpyDeviceToHost);
+  cudaFree(dev_zero_cell);
+  sparsity_output <<"zero_cell: " << zero_cell << std::endl;
 
   CUDA_POST_KERNEL_CHECK;
 }
