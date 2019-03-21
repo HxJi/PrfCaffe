@@ -184,12 +184,12 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   int all_cell = top[0]->count();
   sparsity_output <<"all_cell" << all_cell << std::endl;
   int block_num = CAFFE_GET_BLOCKS(count);
-  int* zero_cell[block_num];
+  int zero_cell[block_num];
   for(int i=0; i<block_num; ++i){
 	  zero_cell[i] = 0;
   }
   cudaError_t err = cudaSuccess;
-  int* dev_zero_cell;
+  int *dev_zero_cell;
   err = cudaMalloc((void**)&dev_zero_cell, block_num * sizeof(int));
   if(err!=cudaSuccess) {
         printf("the cudaMalloc on GPU is failed");
