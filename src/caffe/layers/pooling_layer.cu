@@ -181,8 +181,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   std::ofstream sparsity_output;
   sparsity_output.open(filename.c_str(), ios::app);
   //count the zero number in each block to save space
-  int all_cell = top[0]->count();
-  sparsity_output <<"all_cell" << all_cell << std::endl;
+  sparsity_output <<"topdata->count:" << count << std::endl;
   int block_num = CAFFE_GET_BLOCKS(count);
   int zero_cell[block_num];
   for(int i=0; i<block_num; ++i){
@@ -248,7 +247,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   int total_zero = 0;
   for(int i=0; i<block_num; ++i){
 	      total_zero = zero_cell[i] + total_zero;
-        sparsity_output << "zero_cell[" <<i<<"]:"<< zero_cell[i]<<std::endl;  
+        //sparsity_output << "zero_cell[" <<i<<"]:"<< zero_cell[i]<<std::endl;  
   }
   sparsity_output <<"total_zero:" << total_zero << std::endl;
 
