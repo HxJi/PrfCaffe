@@ -180,12 +180,14 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   Dtype* top_mask = NULL;
 
   //[houxiang] sparsity output file name
-  std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
+  std::string filename = ("/home/hj14/caffe/hj_test/pooling_sparsity.txt");
   std::ofstream sparsity_output;
   sparsity_output.open(filename.c_str(), ios::app);
   //count the zero number in each block to save space
   sparsity_output <<"topdata->count:" << count << std::endl;
   int block_num = CAFFE_GET_BLOCKS(count);
+  sparsity_output << "block_num:" << block_num << std::endl;
+  sparsity_output << "threads:" << CAFFE_CUDA_NUM_THREADS << std::endl;
   int zero_cell[block_num];
   for(int i=0; i<block_num; ++i){
 	  zero_cell[i] = 0;
@@ -206,6 +208,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       mask = max_idx_.mutable_gpu_data();
     }
     // NOLINT_NEXT_LINE(whitespace/operators)
+    sparsity_output << "max_pooling" << std::endl;
     MaxPoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom_data, bottom[0]->num(), channels_,
         height_, width_, pooled_height_, pooled_width_, kernel_h_,
@@ -214,6 +217,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     break;
   case PoolingParameter_PoolMethod_AVE:
     // NOLINT_NEXT_LINE(whitespace/operators)
+    sparsity_output << "ave_pooling" << std::endl;
     AvePoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom_data, bottom[0]->num(), channels_,
         height_, width_, pooled_height_, pooled_width_, kernel_h_,
@@ -221,6 +225,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     break;
   case PoolingParameter_PoolMethod_STOCHASTIC:
     if (this->phase_ == TRAIN) {
+      sparsity_output << "train_sto_pooling" << std::endl;
       // We need to create the random index as well.
       caffe_gpu_rng_uniform(count, Dtype(0), Dtype(1),
                             rand_idx_.mutable_gpu_data());
@@ -233,6 +238,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
           rand_idx_.mutable_gpu_data(), top_data,dev_zero_cell);
     } else {
       // NOLINT_NEXT_LINE(whitespace/operators)
+      sparsity_output << "test_sto_pooling" << std::endl;
       StoPoolForwardTest<Dtype><<<CAFFE_GET_BLOCKS(count),
                                   CAFFE_CUDA_NUM_THREADS>>>(
           count, bottom_data, bottom[0]->num(), channels_,
