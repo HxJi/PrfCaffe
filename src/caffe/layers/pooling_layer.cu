@@ -43,7 +43,7 @@ __global__ void MaxPoolForward(const int nthreads,
     }
     top_data[index] = maxval;
     //[houxiang]
-    if(top_data[index] == 0) ++zero_element[blockIdx.x];
+    if(top_data[index] == 0) zero_element[blockIdx.x]+=1;
     
     if (mask) {
       mask[index] = maxidx;
@@ -84,7 +84,7 @@ __global__ void AvePoolForward(const int nthreads,
     }
     top_data[index] = aveval / pool_size;
     //[houxiang]
-    if(top_data[index] == 0) ++zero_element[blockIdx.x];
+    if(top_data[index] == 0) zero_element[blockIdx.x]+=1;
   }
 }
 
@@ -122,7 +122,7 @@ __global__ void StoPoolForwardTrain(const int nthreads,
         if (cumsum >= thres) {
           rand_idx[index] = ((n * channels + c) * height + h) * width + w;
           top_data[index] = bottom_slice[h * width + w];
-          if(top_data[index] == 0) ++zero_element[blockIdx.x]; 
+          if(top_data[index] == 0) zero_element[blockIdx.x]+=1; 
           return;
         }
       }
@@ -181,12 +181,19 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   std::ofstream sparsity_output;
   sparsity_output.open(filename.c_str());
   //count the zero number in each block to save space
-  int* zero_cell = 0;
   int all_cell = top[0]->count();
   sparsity_output <<"all_cell" << all_cell << std::endl;
   int block_num = CAFFE_GET_BLOCKS(count);
-  int* dev_zero_cell = 0;
-  cudaMalloc((void**)&dev_zero_cell, block_num * sizeof(int));
+  int* zero_cell[block_num];
+  for(int i=0; i<block_num; ++i){
+	zero_cell[i] = 0;
+  }
+  cudaError_t err = cudaSuccess;
+  int* dev_zero_cell;
+  err = cudaMalloc((void**)&dev_zero_cell, block_num * sizeof(int));
+  if(err!=cudaSuccess) {
+        printf("the cudaMalloc on GPU is failed");
+   }
   cudaMemcpy(dev_zero_cell, zero_cell, block_num * sizeof(int), cudaMemcpyHostToDevice);
 
   switch (this->layer_param_.pooling_param().pool()) {
@@ -238,7 +245,12 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   //[houxiang]
   cudaMemcpy(zero_cell, dev_zero_cell, block_num * sizeof(int), cudaMemcpyDeviceToHost);
   cudaFree(dev_zero_cell);
-  sparsity_output <<"zero_cell: " << zero_cell << std::endl;
+  int total_zero = 0;
+  for(int i =0; i<block_num;++i){
+	total_zero += zero_cell[i];
+        sparsity_output << "zero_cell[" <<i<<"]:"<<zero_cell[i]<<std::endl;  
+  }
+  sparsity_output <<"total_zero:" << total_zero << std::endl;
 
   CUDA_POST_KERNEL_CHECK;
 }
