@@ -245,9 +245,8 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   //[houxiang]
   cudaMemcpy(zero_cell, dev_zero_cell, block_num * sizeof(int), cudaMemcpyDeviceToHost);
   cudaFree(dev_zero_cell);
-  int total_zero;
-  total_zero = 0;
-  for(int i=0; i<block_num;++i){
+  int total_zero = 0;
+  for(int i=0; i<block_num; ++i){
 	      total_zero = zero_cell[i] + total_zero;
         sparsity_output << "zero_cell[" <<i<<"]:"<<zero_cell[i]<<std::endl;  
   }
