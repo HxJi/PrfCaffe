@@ -162,7 +162,7 @@ __global__ void StoPoolForwardTest(const int nthreads,
     }
     top_data[index] = (cumsum > 0.) ? cumvalues / cumsum : 0.;
     //[houxiang]
-    if(top_data[inndex] == 0) zero_element[blockIdx.x] = zero_element[blockIdx.x] + 1;
+    if(top_data[index] == 0) zero_element[blockIdx.x] = zero_element[blockIdx.x] + 1;
   }
 }
 
