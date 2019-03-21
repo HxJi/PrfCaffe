@@ -43,8 +43,8 @@ __global__ void MaxPoolForward(const int nthreads,
     }
     top_data[index] = maxval;
     //[houxiang]
-    if(top_data[index] == 0) zero_element[blockIdx.x] = zero_element[blockIdx.x] + 1;
-    
+    if(top_data[index] == 0) zero_element[blockIdx.x] += 1;
+    printf("index:%d,blockIdx.x:%d,data:%d\n",index, blockIdx.x, top_data[index]);
     if (mask) {
       mask[index] = maxidx;
     } else {
@@ -84,7 +84,7 @@ __global__ void AvePoolForward(const int nthreads,
     }
     top_data[index] = aveval / pool_size;
     //[houxiang]
-    if(top_data[index] == 0) zero_element[blockIdx.x] = zero_element[blockIdx.x] + 1;
+    if(top_data[index] == 0) zero_element[blockIdx.x] += 1;
   }
 }
 
@@ -123,7 +123,7 @@ __global__ void StoPoolForwardTrain(const int nthreads,
           rand_idx[index] = ((n * channels + c) * height + h) * width + w;
           top_data[index] = bottom_slice[h * width + w];
           //[houxiang]
-          if(top_data[index] == 0) zero_element[blockIdx.x] = zero_element[blockIdx.x] + 1; 
+          if(top_data[index] == 0) zero_element[blockIdx.x] += 1; 
           return;
         }
       }
@@ -162,7 +162,7 @@ __global__ void StoPoolForwardTest(const int nthreads,
     }
     top_data[index] = (cumsum > 0.) ? cumvalues / cumsum : 0.;
     //[houxiang]
-    if(top_data[index] == 0) zero_element[blockIdx.x] = zero_element[blockIdx.x] + 1;
+    if(top_data[index] == 0) zero_element[blockIdx.x] += 1;
   }
 }
 
@@ -184,10 +184,10 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   std::ofstream sparsity_output;
   sparsity_output.open(filename.c_str(), ios::app);
   //count the zero number in each block to save space
-  sparsity_output <<"topdata->count:" << count << std::endl;
+  //sparsity_output <<"shape:" << train_data- << std::endl;
   int block_num = CAFFE_GET_BLOCKS(count);
-  sparsity_output << "block_num:" << block_num << std::endl;
-  sparsity_output << "threads:" << CAFFE_CUDA_NUM_THREADS << std::endl;
+  //sparsity_output << "block_num:" << block_num << std::endl;
+  //sparsity_output << "threads:" << CAFFE_CUDA_NUM_THREADS << std::endl;
   int zero_cell[block_num];
   for(int i=0; i<block_num; ++i){
 	  zero_cell[i] = 0;

@@ -27,7 +27,7 @@ void ReLULayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   std::ofstream sparsity_output;
   sparsity_output.open(filename.c_str(), ios::app);
   //count the zero number in each block to save space
-  sparsity_output <<"topdata->count:" << count << std::endl;
+  sparsity_output << count << " ";
   int block_num = CAFFE_GET_BLOCKS(count);
   int zero_cell[block_num];
   for(int i=0; i<block_num; ++i){
@@ -53,8 +53,8 @@ void ReLULayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 	      total_zero = zero_cell[i] + total_zero;
         //sparsity_output << "zero_cell[" <<i<<"]:"<< zero_cell[i]<<std::endl;  
   }
-  sparsity_output <<"total_zero:" << total_zero << std::endl;
-  
+  sparsity_output << total_zero << std::endl;
+
   CUDA_POST_KERNEL_CHECK;
   // << " count: " << count << " bottom_data: "
   //     << (unsigned long)bottom_data
