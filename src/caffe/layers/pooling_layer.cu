@@ -179,14 +179,14 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   //[houxiang] sparsity output file name
   std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
   std::ofstream sparsity_output;
-  sparsity_output.open(filename.c_str());
+  sparsity_output.open(filename.c_str(),ofstream::app);
   //count the zero number in each block to save space
   int all_cell = top[0]->count();
   sparsity_output <<"all_cell" << all_cell << std::endl;
   int block_num = CAFFE_GET_BLOCKS(count);
   int* zero_cell[block_num];
   for(int i=0; i<block_num; ++i){
-	zero_cell[i] = 0;
+	  zero_cell[i] = 0;
   }
   cudaError_t err = cudaSuccess;
   int* dev_zero_cell;
