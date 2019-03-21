@@ -179,7 +179,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   //[houxiang] sparsity output file name
   std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
   std::ofstream sparsity_output;
-  sparsity_output.open(filename.c_str(),ofstream::app);
+  sparsity_output.open(filename.c_str(), ios::app);
   //count the zero number in each block to save space
   int all_cell = top[0]->count();
   sparsity_output <<"all_cell" << all_cell << std::endl;
