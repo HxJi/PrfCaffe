@@ -43,7 +43,7 @@ __global__ void MaxPoolForward(const int nthreads,
     }
     top_data[index] = maxval;
     //[houxiang]
-    if(top_data[index] == 0) zero_element[blockIdx.x]+=1;
+    if(top_data[index] == 0) zero_element[blockIdx.x] = zero_element[blockIdx.x] + 1;
     
     if (mask) {
       mask[index] = maxidx;
@@ -84,7 +84,7 @@ __global__ void AvePoolForward(const int nthreads,
     }
     top_data[index] = aveval / pool_size;
     //[houxiang]
-    if(top_data[index] == 0) zero_element[blockIdx.x]+=1;
+    if(top_data[index] == 0) zero_element[blockIdx.x] = zero_element[blockIdx.x] + 1;
   }
 }
 
@@ -122,7 +122,8 @@ __global__ void StoPoolForwardTrain(const int nthreads,
         if (cumsum >= thres) {
           rand_idx[index] = ((n * channels + c) * height + h) * width + w;
           top_data[index] = bottom_slice[h * width + w];
-          if(top_data[index] == 0) zero_element[blockIdx.x]+=1; 
+          //[houxiang]
+          if(top_data[index] == 0) zero_element[blockIdx.x] = zero_element[blockIdx.x] + 1; 
           return;
         }
       }
@@ -137,7 +138,7 @@ __global__ void StoPoolForwardTest(const int nthreads,
     const int num, const int channels, const int height,
     const int width, const int pooled_height, const int pooled_width,
     const int kernel_h, const int kernel_w, const int stride_h,
-    const int stride_w, Dtype* const top_data) {
+    const int stride_w, Dtype* const top_data, int* zero_element) {
   CUDA_KERNEL_LOOP(index, nthreads) {
     const int pw = index % pooled_width;
     const int ph = (index / pooled_width) % pooled_height;
@@ -160,6 +161,8 @@ __global__ void StoPoolForwardTest(const int nthreads,
       }
     }
     top_data[index] = (cumsum > 0.) ? cumvalues / cumsum : 0.;
+    //[houxiang]
+    if(top_data[inndex] == 0) zero_element[blockIdx.x] = zero_element[blockIdx.x] + 1;
   }
 }
 
@@ -234,7 +237,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
                                   CAFFE_CUDA_NUM_THREADS>>>(
           count, bottom_data, bottom[0]->num(), channels_,
           height_, width_, pooled_height_, pooled_width_, kernel_h_,
-          kernel_w_, stride_h_, stride_w_, top_data);
+          kernel_w_, stride_h_, stride_w_, top_data, dev_zero_cell);
     }
     break;
   default:
