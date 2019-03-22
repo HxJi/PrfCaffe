@@ -212,7 +212,8 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       mask = max_idx_.mutable_gpu_data();
     }
     // NOLINT_NEXT_LINE(whitespace/operators)
-    //sparsity_output << "max_pooling" << std::endl;
+    printf("max_pool\n");
+    //sparsity_output <<<< std::endl;
     MaxPoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom_data, bottom[0]->num(), channels_,
         height_, width_, pooled_height_, pooled_width_, kernel_h_,
@@ -221,7 +222,8 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     break;
   case PoolingParameter_PoolMethod_AVE:
     // NOLINT_NEXT_LINE(whitespace/operators)
-    sparsity_output << "ave_pooling" << std::endl;
+    //sparsity_output << "ave_pool" << std::endl;
+    printf("ave_pool\n");
     AvePoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom_data, bottom[0]->num(), channels_,
         height_, width_, pooled_height_, pooled_width_, kernel_h_,
@@ -229,8 +231,9 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     break;
   case PoolingParameter_PoolMethod_STOCHASTIC:
     if (this->phase_ == TRAIN) {
-      sparsity_output << "train_sto_pooling" << std::endl;
+      //sparsity_output << "train_sto_pool" << std::endl;
       // We need to create the random index as well.
+      printf("train_sto_pool\n");
       caffe_gpu_rng_uniform(count, Dtype(0), Dtype(1),
                             rand_idx_.mutable_gpu_data());
       // NOLINT_NEXT_LINE(whitespace/operators)
@@ -242,7 +245,8 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
           rand_idx_.mutable_gpu_data(), top_data,dev_zero_cell);
     } else {
       // NOLINT_NEXT_LINE(whitespace/operators)
-      sparsity_output << "test_sto_pooling" << std::endl;
+      //sparsity_output << "test_sto_pool" << std::endl;
+      printf("test_sto_pool\n");
       StoPoolForwardTest<Dtype><<<CAFFE_GET_BLOCKS(count),
                                   CAFFE_CUDA_NUM_THREADS>>>(
           count, bottom_data, bottom[0]->num(), channels_,
