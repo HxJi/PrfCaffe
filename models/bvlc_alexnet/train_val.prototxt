@@ -29,7 +29,7 @@ layer {
   transform_param {
     mirror: false
     crop_size: 227
-    mean_file: "d/shared/datasets/ImageNet2012/lmdb_data/imagenet_mean.binaryproto"
+    mean_file: "/shared/datasets/ImageNet2012/lmdb_data/imagenet_mean.binaryproto"
   }
   data_param {
     source: "/shared/datasets/ImageNet2012/lmdb_data/ilsvrc12_val_lmdb"
