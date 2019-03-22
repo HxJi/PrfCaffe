@@ -43,7 +43,8 @@ __global__ void MaxPoolForward(const int nthreads,
     }
     top_data[index] = maxval;
     //[houxiang]
-    if(top_data[index] == 0) zero_element[blockIdx.x] += 1;
+    int block_index = index/CAFFE_CUDA_NUM_THREADS;
+    if(top_data[index] == 0) zero_element[block_index] += 1;
     //printf("%.6f,%i,%i\n%",top_data[index],blockIdx.x,zero_element[blockIdx.x]);
 
     if (mask) {
@@ -259,7 +260,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   int total_zero = 0;
   for(int i=0; i<block_num; ++i){
 	      total_zero = zero_cell[i] + total_zero;
-        sparsity_output << "[" <<i<<"]:"<< zero_cell[i]<<" ";  
+        //sparsity_output << "[" <<i<<"]:"<< zero_cell[i]<<" ";  
   }
   sparsity_output << total_zero << std::endl;
 

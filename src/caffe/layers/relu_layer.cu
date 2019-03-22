@@ -10,7 +10,7 @@ __global__ void ReLUForward(const int n, const Dtype* in, Dtype* out,
     Dtype negative_slope, int* zero_element) {
   CUDA_KERNEL_LOOP(index, n) {
     out[index] = in[index] > 0 ? in[index] : in[index] * negative_slope;
-    if(out[index] == 0) zero_element[blockIdx.x] += 1;
+    if(out[index] == 0) zero_element[index/CAFFE_CUDA_NUM_THREADS] += 1;
   }
 }
 
@@ -51,7 +51,7 @@ void ReLULayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   int total_zero = 0;
   for(int i=0; i<block_num; ++i){
 	      total_zero = zero_cell[i] + total_zero;
-        sparsity_output << "[" <<i<<"]:"<< zero_cell[i]<<" ";
+        //sparsity_output << "[" <<i<<"]:"<< zero_cell[i]<<" ";
   }
   sparsity_output << total_zero << std::endl;
 
