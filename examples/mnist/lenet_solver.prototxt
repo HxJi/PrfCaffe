@@ -16,7 +16,7 @@ gamma: 0.0001
 power: 0.75
 # [houxiang]
 # add regularization type
-regularization_type: "L2"
+regularization_type: "L1"
 # Display every 100 iterations
 display: 1000
 # The maximum number of iterations

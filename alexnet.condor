@@ -2,7 +2,7 @@
 # appends the contents of one file to another.
 
 # cat is used to concatenate
-Executable = models/bvlc_alexnet/train_alexnet.sh
+Executable = models/bvlc_alexnet/
 
 # don't copy cat to the condor rundir
 Transfer_executable = False
@@ -11,8 +11,8 @@ Transfer_executable = False
 get_env = True
 
 # one cpu per job
-request_CPUs = 1
-request_GPUs = 4
+request_CPUs = 4
+request_GPUs = 1
 
 # cd into the directory before starting
 InitialDir = /home/hj14/caffe
@@ -26,11 +26,11 @@ Log = /home/hj14/caffe/alexnet/test.log
 # $Fp(filename) is the path only. $(step) is the job number, using its queue
 # number; ie, there are 0-9 steps for each matching folder name
 # redirect doesn't actually work inside condor... but you get the idea :sweat_smile:
-Arguments = "/home/hj14/caffe/alexnet/logits\[$(step)\].csv >> /home/hj14/caffe/alexnet/logits$(step).csv"
+Arguments = train_alexnet.sh
 Priority = 5
 
 # Notice that the keyword 'file' is absent - that's because this is matching
 # directories, and not files.
 # Again, the variable used to hold the matching data is $(filename)
 # Queue 10 filename matching (/scratch/ckpt880k_900k_bias*/logs/)
-Queue
+Queued
