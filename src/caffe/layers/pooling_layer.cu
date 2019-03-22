@@ -16,7 +16,7 @@ __global__ void MaxPoolForward(const int nthreads,
     const int height, const int width, const int pooled_height,
     const int pooled_width, const int kernel_h, const int kernel_w,
     const int stride_h, const int stride_w, const int pad_h, const int pad_w,
-    Dtype* const top_data, int* mask, Dtype* top_mask,int* zero_element) {
+    Dtype* const top_data, int* mask, Dtype* top_mask) {
 
   CUDA_KERNEL_LOOP(index, nthreads) {
     const int pw = index % pooled_width;
@@ -42,10 +42,6 @@ __global__ void MaxPoolForward(const int nthreads,
       }
     }
     top_data[index] = maxval;
-    //[houxiang]
-    int block_index = index/CAFFE_CUDA_NUM_THREADS;
-    if(top_data[index] == 0) zero_element[block_index] += 1;
-    //printf("%.6f,%i,%i\n%",top_data[index],blockIdx.x,zero_element[blockIdx.x]);
 
     if (mask) {
       mask[index] = maxidx;
@@ -61,7 +57,7 @@ __global__ void AvePoolForward(const int nthreads,
     const int height, const int width, const int pooled_height,
     const int pooled_width, const int kernel_h, const int kernel_w,
     const int stride_h, const int stride_w, const int pad_h, const int pad_w,
-    Dtype* const top_data, int* zero_element) {
+    Dtype* const top_data) {
   CUDA_KERNEL_LOOP(index, nthreads) {
     const int pw = index % pooled_width;
     const int ph = (index / pooled_width) % pooled_height;
@@ -85,8 +81,6 @@ __global__ void AvePoolForward(const int nthreads,
       }
     }
     top_data[index] = aveval / pool_size;
-    //[houxiang]
-    if(top_data[index] == 0) zero_element[blockIdx.x] += 1;
   }
 }
 
@@ -96,7 +90,7 @@ __global__ void StoPoolForwardTrain(const int nthreads,
     const int num, const int channels, const int height,
     const int width, const int pooled_height, const int pooled_width,
     const int kernel_h, const int kernel_w, const int stride_h,
-    const int stride_w, Dtype* const rand_idx, Dtype* const top_data, int* zero_element) {
+    const int stride_w, Dtype* const rand_idx, Dtype* const top_data) {
   CUDA_KERNEL_LOOP(index, nthreads) {
     const int pw = index % pooled_width;
     const int ph = (index / pooled_width) % pooled_height;
@@ -124,8 +118,6 @@ __global__ void StoPoolForwardTrain(const int nthreads,
         if (cumsum >= thres) {
           rand_idx[index] = ((n * channels + c) * height + h) * width + w;
           top_data[index] = bottom_slice[h * width + w];
-          //[houxiang]
-          if(top_data[index] == 0) zero_element[blockIdx.x] += 1; 
           return;
         }
       }
@@ -140,7 +132,7 @@ __global__ void StoPoolForwardTest(const int nthreads,
     const int num, const int channels, const int height,
     const int width, const int pooled_height, const int pooled_width,
     const int kernel_h, const int kernel_w, const int stride_h,
-    const int stride_w, Dtype* const top_data, int* zero_element) {
+    const int stride_w, Dtype* const top_data) {
   CUDA_KERNEL_LOOP(index, nthreads) {
     const int pw = index % pooled_width;
     const int ph = (index / pooled_width) % pooled_height;
@@ -163,8 +155,6 @@ __global__ void StoPoolForwardTest(const int nthreads,
       }
     }
     top_data[index] = (cumsum > 0.) ? cumvalues / cumsum : 0.;
-    //[houxiang]
-    if(top_data[index] == 0) zero_element[blockIdx.x] += 1;
   }
 }
 
@@ -181,29 +171,6 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   int* mask = NULL;
   Dtype* top_mask = NULL;
 
-  //[houxiang] sparsity output file name
-  std::string filename = ("/home/hj14/caffe/hj_test/pooling_sparsity.txt");
-  std::ofstream sparsity_output;
-  sparsity_output.open(filename.c_str(), ios::app);
-  int block_num = CAFFE_GET_BLOCKS(count);
-  sparsity_output << count << " ";
-  int zero_cell[block_num];
-  for(int i=0; i<block_num; ++i){
-	  zero_cell[i] = 0;
-  }
-  cudaError_t err = cudaSuccess;
-  int *dev_zero_cell;
-  err = cudaMalloc((void**)&dev_zero_cell, block_num * sizeof(int));
-  if(err!=cudaSuccess) {
-        printf("the cudaMalloc on GPU is failed");
-   }
-  cudaMemcpy(dev_zero_cell, zero_cell, block_num * sizeof(int), cudaMemcpyHostToDevice);
-
-  //count the zero number in each block to save space
-  //sparsity_output <<"shape:" << train_data- << std::endl;
-  //sparsity_output << "block_num:" << block_num << std::endl;
-  //sparsity_output << "threads:" << CAFFE_CUDA_NUM_THREADS << std::endl;
-
   switch (this->layer_param_.pooling_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
     if (use_top_mask) {
@@ -212,28 +179,22 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       mask = max_idx_.mutable_gpu_data();
     }
     // NOLINT_NEXT_LINE(whitespace/operators)
-    printf("max_pool\n");
-    //sparsity_output <<<< std::endl;
     MaxPoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom_data, bottom[0]->num(), channels_,
         height_, width_, pooled_height_, pooled_width_, kernel_h_,
         kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data,
-        mask, top_mask, dev_zero_cell);
+        mask, top_mask);
     break;
   case PoolingParameter_PoolMethod_AVE:
     // NOLINT_NEXT_LINE(whitespace/operators)
-    //sparsity_output << "ave_pool" << std::endl;
-    printf("ave_pool\n");
     AvePoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom_data, bottom[0]->num(), channels_,
         height_, width_, pooled_height_, pooled_width_, kernel_h_,
-        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data, dev_zero_cell);
+        kernel_w_, stride_h_, stride_w_, pad_h_, pad_w_, top_data);
     break;
   case PoolingParameter_PoolMethod_STOCHASTIC:
     if (this->phase_ == TRAIN) {
-      //sparsity_output << "train_sto_pool" << std::endl;
       // We need to create the random index as well.
-      printf("train_sto_pool\n");
       caffe_gpu_rng_uniform(count, Dtype(0), Dtype(1),
                             rand_idx_.mutable_gpu_data());
       // NOLINT_NEXT_LINE(whitespace/operators)
@@ -242,31 +203,19 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
           count, bottom_data, bottom[0]->num(), channels_,
           height_, width_, pooled_height_, pooled_width_, kernel_h_,
           kernel_w_, stride_h_, stride_w_,
-          rand_idx_.mutable_gpu_data(), top_data,dev_zero_cell);
+          rand_idx_.mutable_gpu_data(), top_data);
     } else {
       // NOLINT_NEXT_LINE(whitespace/operators)
-      //sparsity_output << "test_sto_pool" << std::endl;
-      printf("test_sto_pool\n");
       StoPoolForwardTest<Dtype><<<CAFFE_GET_BLOCKS(count),
                                   CAFFE_CUDA_NUM_THREADS>>>(
           count, bottom_data, bottom[0]->num(), channels_,
           height_, width_, pooled_height_, pooled_width_, kernel_h_,
-          kernel_w_, stride_h_, stride_w_, top_data, dev_zero_cell);
+          kernel_w_, stride_h_, stride_w_, top_data);
     }
     break;
   default:
     LOG(FATAL) << "Unknown pooling method.";
   }
-
-  //[houxiang]
-  cudaMemcpy(&zero_cell, dev_zero_cell, block_num * sizeof(int), cudaMemcpyDeviceToHost);
-  cudaFree(dev_zero_cell);
-  int total_zero = 0;
-  for(int i=0; i<block_num; ++i){
-	      total_zero = zero_cell[i] + total_zero;
-        //sparsity_output << "[" <<i<<"]:"<< zero_cell[i]<<" ";  
-  }
-  sparsity_output << total_zero << std::endl;
 
   CUDA_POST_KERNEL_CHECK;
 }

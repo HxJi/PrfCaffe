@@ -7,10 +7,9 @@ namespace caffe {
 
 template <typename Dtype>
 __global__ void ReLUForward(const int n, const Dtype* in, Dtype* out,
-    Dtype negative_slope, int* zero_element) {
+    Dtype negative_slope) {
   CUDA_KERNEL_LOOP(index, n) {
     out[index] = in[index] > 0 ? in[index] : in[index] * negative_slope;
-    if(out[index] == 0) zero_element[index/CAFFE_CUDA_NUM_THREADS] += 1;
   }
 }
 
@@ -22,38 +21,9 @@ void ReLULayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   const int count = bottom[0]->count();
   Dtype negative_slope = this->layer_param_.relu_param().negative_slope();
 
-  //[houxiang]
-  std::string filename = ("/home/hj14/caffe/hj_test/relu_sparsity.txt");
-  std::ofstream sparsity_output;
-  sparsity_output.open(filename.c_str(), ios::app);
-  //count the zero number in each block to save space
-  sparsity_output << count << " ";
-  int block_num = CAFFE_GET_BLOCKS(count);
-  int zero_cell[block_num];
-  for(int i=0; i<block_num; ++i){
-	  zero_cell[i] = 0;
-  }
-  cudaError_t err = cudaSuccess;
-  int *dev_zero_cell;
-  err = cudaMalloc((void**)&dev_zero_cell, block_num * sizeof(int));
-  if(err!=cudaSuccess) {
-        printf("the cudaMalloc on GPU is failed");
-   }
-  cudaMemcpy(dev_zero_cell, zero_cell, block_num * sizeof(int), cudaMemcpyHostToDevice);
-
   // NOLINT_NEXT_LINE(whitespace/operators)
   ReLUForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-      count, bottom_data, top_data, negative_slope, dev_zero_cell );
-  
-  //[houxiang]
-  cudaMemcpy(&zero_cell, dev_zero_cell, block_num * sizeof(int), cudaMemcpyDeviceToHost);
-  cudaFree(dev_zero_cell);
-  int total_zero = 0;
-  for(int i=0; i<block_num; ++i){
-	      total_zero = zero_cell[i] + total_zero;
-        //sparsity_output << "[" <<i<<"]:"<< zero_cell[i]<<" ";
-  }
-  sparsity_output << total_zero << std::endl;
+      count, bottom_data, top_data, negative_slope);
 
   CUDA_POST_KERNEL_CHECK;
   // << " count: " << count << " bottom_data: "

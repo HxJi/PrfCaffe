@@ -137,17 +137,13 @@ void PoolingLayer<Dtype>::Reshape(const vector<Blob<Dtype>*>& bottom,
   }
 }
 
-//[houxiang]
-// top data is the output, bottom is the input data
-// add profiling at the forward output for pooling and relu layer
-// TODO(Yangqing): Is there a faster way to do pooling in the channel-first
-// case?
+
 template <typename Dtype>
 void PoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
 
   //[houxiang] sparsity output file name
-  std::string filename = ("/home/hj14/caffe/hj_test/sparsity.txt");
+  std::string filename = ("/home/hj14/caffe/hj_test/pooling_cpu_sparsity.txt");
   std::ofstream sparsity_output;
   sparsity_output.open(filename.c_str());
 
