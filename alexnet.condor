@@ -22,7 +22,7 @@ Output = /home/hj14/caffe/alexnet/test.out
 Error = /home/hj14/caffe/alexnet/test.err
 Log = /home/hj14/caffe/alexnet/test.log
 
-arguments to cat
+# arguments to cat
 # $Fp(filename) is the path only. $(step) is the job number, using its queue
 # number; ie, there are 0-9 steps for each matching folder name
 # redirect doesn't actually work inside condor... but you get the idea :sweat_smile:
