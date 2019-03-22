@@ -44,7 +44,8 @@ __global__ void MaxPoolForward(const int nthreads,
     top_data[index] = maxval;
     //[houxiang]
     if(top_data[index] == 0) zero_element[blockIdx.x] += 1;
-    printf("index:%d,blockIdx.x:%d,data:%d\n",index, blockIdx.x, top_data[index]);
+    printf("%f,%i,%i.\n%",top_data[index],blockIdx.x,zero_element[blockIdx.x]);
+
     if (mask) {
       mask[index] = maxidx;
     } else {
@@ -183,11 +184,8 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   std::string filename = ("/home/hj14/caffe/hj_test/pooling_sparsity.txt");
   std::ofstream sparsity_output;
   sparsity_output.open(filename.c_str(), ios::app);
-  //count the zero number in each block to save space
-  //sparsity_output <<"shape:" << train_data- << std::endl;
   int block_num = CAFFE_GET_BLOCKS(count);
-  //sparsity_output << "block_num:" << block_num << std::endl;
-  //sparsity_output << "threads:" << CAFFE_CUDA_NUM_THREADS << std::endl;
+  sparsity_output << count << " ";
   int zero_cell[block_num];
   for(int i=0; i<block_num; ++i){
 	  zero_cell[i] = 0;
@@ -200,6 +198,11 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
    }
   cudaMemcpy(dev_zero_cell, zero_cell, block_num * sizeof(int), cudaMemcpyHostToDevice);
 
+  //count the zero number in each block to save space
+  //sparsity_output <<"shape:" << train_data- << std::endl;
+  //sparsity_output << "block_num:" << block_num << std::endl;
+  //sparsity_output << "threads:" << CAFFE_CUDA_NUM_THREADS << std::endl;
+
   switch (this->layer_param_.pooling_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
     if (use_top_mask) {
@@ -208,7 +211,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
       mask = max_idx_.mutable_gpu_data();
     }
     // NOLINT_NEXT_LINE(whitespace/operators)
-    sparsity_output << "max_pooling" << std::endl;
+    //sparsity_output << "max_pooling" << std::endl;
     MaxPoolForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
         count, bottom_data, bottom[0]->num(), channels_,
         height_, width_, pooled_height_, pooled_width_, kernel_h_,
@@ -258,7 +261,7 @@ void PoolingLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 	      total_zero = zero_cell[i] + total_zero;
         //sparsity_output << "zero_cell[" <<i<<"]:"<< zero_cell[i]<<std::endl;  
   }
-  sparsity_output <<"total_zero:" << total_zero << std::endl;
+  sparsity_output << total_zero << std::endl;
 
   CUDA_POST_KERNEL_CHECK;
 }
