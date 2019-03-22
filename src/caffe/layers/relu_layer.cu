@@ -51,7 +51,7 @@ void ReLULayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   int total_zero = 0;
   for(int i=0; i<block_num; ++i){
 	      total_zero = zero_cell[i] + total_zero;
-        //sparsity_output << "zero_cell[" <<i<<"]:"<< zero_cell[i]<<std::endl;  
+        sparsity_output << "[" <<i<<"]:"<< zero_cell[i]<<" ";
   }
   sparsity_output << total_zero << std::endl;
 
