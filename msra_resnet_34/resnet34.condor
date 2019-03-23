@@ -18,15 +18,15 @@ request_GPUs = 1
 InitialDir = /home/hj14/caffe
 
 # output, error, and log files
-Output = /home/hj14/caffe/msra_resnet_50/test.out
-Error = /home/hj14/caffe/msra_resnet_50/test.err
-Log = /home/hj14/caffe/msra_resnet_50/test.log
+Output = /home/hj14/caffe/msra_resnet_34/test.out
+Error = /home/hj14/caffe/msra_resnet_34/test.err
+Log = /home/hj14/caffe/msra_resnet_34/test.log
 
 # arguments to cat
 # $Fp(filename) is the path only. $(step) is the job number, using its queue
 # number; ie, there are 0-9 steps for each matching folder name
 # redirect doesn't actually work inside condor... but you get the idea :sweat_smile:
-Arguments = "train_resnet50.sh"
+Arguments = "train_resnet34.sh"
 Priority = 5
 
 # Notice that the keyword 'file' is absent - that's because this is matching
