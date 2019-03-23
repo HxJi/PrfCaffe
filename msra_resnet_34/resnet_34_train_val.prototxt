@@ -1,4 +1,4 @@
-name: "ResNet-34"
+name: "resnet_34"
 layer {
     name: "data"
     type: "Data"
@@ -10,13 +10,11 @@ layer {
     transform_param {
         mirror: true
         crop_size: 224
-        mean_value: 104
-        mean_value: 117
-        mean_value: 123
+        mean_file: "/shared/datasets/ImageNet2012/lmdb_data/imagenet_mean.binaryproto"
     }
     data_param {
-        source: "../ilsvrc2012/ilsvrc2012_train"
-        batch_size: 32
+        ssource: "/shared/datasets/ImageNet2012/lmdb_data/ilsvrc12_train_lmdb"
+        batch_size: 16
         backend: LMDB
     }
 }
@@ -31,13 +29,11 @@ layer {
     transform_param {
         mirror: false
         crop_size: 224
-        mean_value: 104
-        mean_value: 117
-        mean_value: 123
+        mean_file: "/shared/datasets/ImageNet2012/lmdb_data/imagenet_mean.binaryproto"
     }
     data_param {
-        source: "../ilsvrc2012/ilsvrc2012_val"
-        batch_size: 1
+        source: "/shared/datasets/ImageNet2012/lmdb_data/ilsvrc12_val_lmdb"
+        batch_size: 10
         backend: LMDB
     }
 }
