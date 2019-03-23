@@ -11,7 +11,7 @@ Transfer_executable = False
 get_env = True
 
 # one cpu per job
-request_CPUs = 6
+request_CPUs = 4
 request_GPUs = 1
 
 # cd into the directory before starting
