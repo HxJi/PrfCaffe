@@ -2,7 +2,7 @@
 # appends the contents of one file to another.
 
 # cat is used to concatenate
-Executable = /usr/bin/env sh
+Executable = /home/hj14/caffe/msra_resnet_50/train_resnet50.sh
 
 # don't copy cat to the condor rundir
 Transfer_executable = False
@@ -15,7 +15,7 @@ request_CPUs = 1
 request_GPUs = 1
 
 # cd into the directory before starting
-InitialDir = /home/hj14/caffe
+InitialDir = /home/hj14/caffe/msra_resnet_50
 
 # output, error, and log files
 Output = /home/hj14/caffe/msra_resnet_50/test.out
@@ -26,7 +26,7 @@ Log = /home/hj14/caffe/msra_resnet_50/test.log
 # $Fp(filename) is the path only. $(step) is the job number, using its queue
 # number; ie, there are 0-9 steps for each matching folder name
 # redirect doesn't actually work inside condor... but you get the idea :sweat_smile:
-Arguments = "train_resnet50.sh"
+# Arguments = "train_resnet50.sh"
 Priority = 5
 
 # Notice that the keyword 'file' is absent - that's because this is matching

@@ -1,0 +1,36 @@
+# This job description file creates ten jobs per matching folder. Each job
+# appends the contents of one file to another.
+
+# cat is used to concatenate
+Executable = models/bvlc_alexnet/
+
+# don't copy cat to the condor rundir
+Transfer_executable = False
+
+# not really necessary, but better to have it...
+get_env = True
+
+# one cpu per job
+request_CPUs = 4
+request_GPUs = 1
+
+# cd into the directory before starting
+InitialDir = /home/hj14/caffe
+
+# output, error, and log files
+Output = /home/hj14/caffe/alexnet/test.out
+Error = /home/hj14/caffe/alexnet/test.err
+Log = /home/hj14/caffe/alexnet/test.log
+
+# arguments to cat
+# $Fp(filename) is the path only. $(step) is the job number, using its queue
+# number; ie, there are 0-9 steps for each matching folder name
+# redirect doesn't actually work inside condor... but you get the idea :sweat_smile:
+Arguments = train_alexnet.sh
+Priority = 5
+
+# Notice that the keyword 'file' is absent - that's because this is matching
+# directories, and not files.
+# Again, the variable used to hold the matching data is $(filename)
+# Queue 10 filename matching (/scratch/ckpt880k_900k_bias*/logs/)
+Queue
