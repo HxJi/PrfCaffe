@@ -33,4 +33,4 @@ Priority = 5
 # directories, and not files.
 # Again, the variable used to hold the matching data is $(filename)
 # Queue 10 filename matching (/scratch/ckpt880k_900k_bias*/logs/)
-Queued
+Queue
