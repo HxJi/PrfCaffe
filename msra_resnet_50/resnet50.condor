@@ -1,6 +1,5 @@
 # This job description file creates ten jobs per matching folder. Each job
 # appends the contents of one file to another.
-
 # cat is used to concatenate
 Executable = /home/hj14/caffe/msra_resnet_50/train_resnet50.sh
 
