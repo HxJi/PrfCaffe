@@ -29,3 +29,56 @@
 009 (36501.000.000) 03/25 21:21:23 Job was aborted by the user.
 	via condor_rm (by user hj14)
 ...
+000 (37095.000.000) 03/27 00:23:32 Job submitted from host: <130.126.136.23:9618?addrs=130.126.136.23-9618+[2620-0-e00-550a-d5af-3938-56b5-7e95]-9618&noUDP&sock=530000_7eb6_4>
+...
+009 (37095.000.000) 03/27 01:06:40 Job was aborted by the user.
+	via condor_rm (by user hj14)
+...
+000 (37096.000.000) 03/27 01:09:21 Job submitted from host: <130.126.136.23:9618?addrs=130.126.136.23-9618+[2620-0-e00-550a-d5af-3938-56b5-7e95]-9618&noUDP&sock=530000_7eb6_4>
+...
+001 (37096.000.000) 03/27 03:41:43 Job executing on host: <130.126.136.28:9618?addrs=130.126.136.28-9618+[2620-0-e00-550a-5cfb-6d30-acf6-7bf1]-9618&noUDP&sock=3305_8898_3>
+...
+006 (37096.000.000) 03/27 03:41:44 Image size of job updated: 8
+	1  -  MemoryUsage of job (MB)
+	8  -  ResidentSetSize of job (KB)
+...
+005 (37096.000.000) 03/27 03:41:44 Job terminated.
+	(1) Normal termination (return value 1)
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :                 1         1 
+	   Disk (KB)            :        1        1    194247 
+	   Gpus                 :                 1         1 "CUDA0"
+	   Memory (MB)          :        1        1       128 
+...
+000 (37102.000.000) 03/27 10:05:43 Job submitted from host: <130.126.136.23:9618?addrs=130.126.136.23-9618+[2620-0-e00-550a-d5af-3938-56b5-7e95]-9618&noUDP&sock=530000_7eb6_4>
+...
+001 (37102.000.000) 03/27 10:05:58 Job executing on host: <130.126.136.28:9618?addrs=130.126.136.28-9618+[2620-0-e00-550a-5cfb-6d30-acf6-7bf1]-9618&noUDP&sock=3305_8898_3>
+...
+006 (37102.000.000) 03/27 10:05:58 Image size of job updated: 1
+	0  -  MemoryUsage of job (MB)
+	0  -  ResidentSetSize of job (KB)
+...
+005 (37102.000.000) 03/27 10:05:58 Job terminated.
+	(1) Normal termination (return value 1)
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Run Local Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Remote Usage
+		Usr 0 00:00:00, Sys 0 00:00:00  -  Total Local Usage
+	0  -  Run Bytes Sent By Job
+	0  -  Run Bytes Received By Job
+	0  -  Total Bytes Sent By Job
+	0  -  Total Bytes Received By Job
+	Partitionable Resources :    Usage  Request Allocated Assigned
+	   Cpus                 :                 1         1 
+	   Disk (KB)            :        1        1    194247 
+	   Gpus                 :                 1         1 "CUDA0"
+	   Memory (MB)          :        0        1       128 
+...

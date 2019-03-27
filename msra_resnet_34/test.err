@@ -1,0 +1,1 @@
+./build/tools/caffe: error while loading shared libraries: libglog.so.0: cannot open shared object file: No such file or directory
