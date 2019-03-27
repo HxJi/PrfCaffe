@@ -13,7 +13,7 @@ layer {
         mean_file: "/shared/datasets/ImageNet2012/lmdb_data/imagenet_mean.binaryproto"
     }
     data_param {
-        ssource: "/shared/datasets/ImageNet2012/lmdb_data/ilsvrc12_train_lmdb"
+        source: "/shared/datasets/ImageNet2012/lmdb_data/ilsvrc12_train_lmdb"
         batch_size: 16
         backend: LMDB
     }

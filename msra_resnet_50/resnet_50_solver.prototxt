@@ -1,4 +1,4 @@
-net: "resnet_50_train_val.prototxt"
+net: "/home/hj14/caffe/msra_resnet_50/resnet_50_train_val.prototxt"
 iter_size: 16
 test_iter: 1000
 test_interval: 1200
