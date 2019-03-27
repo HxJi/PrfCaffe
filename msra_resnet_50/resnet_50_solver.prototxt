@@ -1,9 +1,9 @@
 net: "resnet_50_train_val.prototxt"
-iter_size: 2
-test_iter: 10000
-test_interval: 120
+iter_size: 16
+test_iter: 1000
+test_interval: 1200
 test_initialization: false
-display: 300
+display: 8000
 base_lr: 0.05
 lr_policy: "multistep"
 stepvalue: 300000
