@@ -14,7 +14,7 @@ request_CPUs = 1
 request_GPUs = 1
 
 # cd into the directory before starting
-InitialDir = /home/hj14/caffe/msra_resnet_50
+InitialDir = /home/hj14/caffe
 requirements = (machine == "bahamut.cs.illinois.edu")
 
 # output, error, and log files
