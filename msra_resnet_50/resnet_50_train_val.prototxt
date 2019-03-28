@@ -14,7 +14,7 @@ layer {
     }
     data_param {
         source: "/shared/datasets/ImageNet2012/lmdb_data/ilsvrc12_train_lmdb"
-        batch_size: 16
+        batch_size: 64
         backend: LMDB
     }
 }
