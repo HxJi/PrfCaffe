@@ -6616,3 +6616,7 @@ I0329 13:57:48.735267 13194 solver.cpp:258]     Train net output #0: loss = 1.35
 I0329 13:57:48.735286 13194 sgd_solver.cpp:112] Iteration 60000, lr = 0.05
 I0329 13:58:46.408828 13227 data_layer.cpp:73] Restarting data prefetching from start.
 I0329 14:24:53.807868 13194 blocking_queue.cpp:49] Waiting for data
+I0329 14:53:39.838044 13194 blocking_queue.cpp:49] Waiting for data
+I0329 14:59:51.925170 13194 blocking_queue.cpp:49] Waiting for data
+I0329 15:05:04.558184 13194 blocking_queue.cpp:49] Waiting for data
+I0329 15:10:31.056592 13194 blocking_queue.cpp:49] Waiting for data
