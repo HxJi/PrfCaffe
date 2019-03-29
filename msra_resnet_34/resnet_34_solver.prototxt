@@ -1,6 +1,6 @@
 net: "/home/hj14/caffe/msra_resnet_34/resnet_34_train_val.prototxt"
 iter_size: 8
-test_iter: 10000
+test_iter: 1000
 test_interval: 80000
 test_initialization: false
 display: 10000
