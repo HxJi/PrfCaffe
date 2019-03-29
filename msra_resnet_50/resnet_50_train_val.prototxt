@@ -10,10 +10,10 @@ layer {
     transform_param {
         mirror: true
         crop_size: 224
-        mean_file: "/shared/datasets/ImageNet2012/lmdb_data/imagenet_mean.binaryproto"
+        mean_file: "/scratch/imagenet/lmdb_data/imagenet_mean.binaryproto"
     }
     data_param {
-        source: "/shared/datasets/ImageNet2012/lmdb_data/ilsvrc12_train_lmdb"
+        source: "/scratch/imagenet/lmdb_data/ilsvrc12_train_lmdb"
         batch_size: 64
         backend: LMDB
     }
@@ -29,10 +29,10 @@ layer {
     transform_param {
         mirror: false
         crop_size: 224
-        mean_file: "/shared/datasets/ImageNet2012/lmdb_data/imagenet_mean.binaryproto"
+        mean_file: "/scratch/imagenet/lmdb_data/imagenet_mean.binaryproto"
     }
     data_param {
-        source: "/shared/datasets/ImageNet2012/lmdb_data/ilsvrc12_val_lmdb"
+        source: "/scratch/imagenet/lmdb_data/ilsvrc12_val_lmdb"
         batch_size: 10
         backend: LMDB
     }
@@ -2651,4 +2651,3 @@ layer {
         top_k: 5
     }
 }
-
