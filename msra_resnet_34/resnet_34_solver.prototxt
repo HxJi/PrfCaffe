@@ -3,7 +3,7 @@ iter_size: 8
 test_iter: 10000
 test_interval: 80000
 test_initialization: false
-display: 20000
+display: 10000
 base_lr: 0.05
 lr_policy: "multistep"
 stepvalue: 2400000
