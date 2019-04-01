@@ -33,7 +33,7 @@ layer {
     }
     data_param {
         source: "/scratch/imagenet/lmdb_data/ilsvrc12_val_lmdb"
-        batch_size: 100
+        batch_size: 20
         backend: LMDB
     }
 }

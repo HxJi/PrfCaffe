@@ -27,7 +27,7 @@ Log = /home/hj14/caffe/msra_resnet_50/test.log
 # number; ie, there are 0-9 steps for each matching folder name
 # redirect doesn't actually work inside condor... but you get the idea :sweat_smile:
 # Arguments = "train_resnet50.sh"
-Priority = 10
+Priority = 20
 
 # Notice that the keyword 'file' is absent - that's because this is matching
 # directories, and not files.
